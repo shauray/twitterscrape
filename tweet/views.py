@@ -37,7 +37,7 @@ def tweets(request):
 		#	size = words[word] * 100
 			#jsonFile.write('{"name": "' + str(word) + '", "size": ' + str(size) + '}, \n')
 		#jsonFile.write("]\n}\n]\n}\n]\n}")
-	return render_to_response('tweet/tweets.html', locals(), context_instance=RequestContext(request))
+	return render_to_response('tweet/testing.html', locals(), context_instance=RequestContext(request))
 
 def population(request):
 	return open(os.path.dirname(os.path.abspath(__file__)) + "/templates/tweet/population.csv")
