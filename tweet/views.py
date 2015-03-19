@@ -28,7 +28,7 @@ def tweets(request):
 	#for word in words:
 	#	formatted_words.append(word + ": " + words[word])
 
-	filepath = os.path.dirname(os.path.abspath(__file__)) + "/templates/tweet/cloud.json"
+	#filepath = os.path.dirname(os.path.abspath(__file__)) + "/templates/tweet/cloud.json"
 	#with open(filepath, "a") as jsonFile:
 		#import string
 		#for word in words:	
@@ -39,7 +39,5 @@ def tweets(request):
 		#jsonFile.write("]\n}\n]\n}\n]\n}")
 	return render_to_response('tweet/tweets.html', locals(), context_instance=RequestContext(request))
 
-def cloud(request):
-	return open(os.path.dirname(os.path.abspath(__file__)) + "/templates/tweet/cloud.json")
 def population(request):
 	return open(os.path.dirname(os.path.abspath(__file__)) + "/templates/tweet/population.csv")
