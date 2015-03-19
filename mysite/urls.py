@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url(r'^$', include('tweet.urls'), name='home'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^tweets/', include('tweet.urls')), #page with tweets
-    url(r'^tweets/cloud.json', include('tweet.urls')) #to read the JSON file
+    url(r'^tweets/cloud.json', include('tweet.urls')), #to read the JSON file
+	url(r'^tweets/population.csv', include('tweet.urls'))
 )
 	

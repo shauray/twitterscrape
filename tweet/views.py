@@ -41,3 +41,5 @@ def tweets(request):
 
 def cloud(request):
 	return open(os.path.dirname(os.path.abspath(__file__)) + "/templates/tweet/cloud.json")
+def population(request):
+	return open(os.path.dirname(os.path.abspath(__file__)) + "/templates/tweet/population.csv")
