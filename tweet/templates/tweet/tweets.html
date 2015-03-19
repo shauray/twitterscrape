@@ -14,7 +14,7 @@ text {
 	<!--<blockquote class="twitter-tweet" lang="en"><p>{{ status.text }}</p>&mdash; {{ status.user }} <a href="{{ status.entities.expanded_url }}">{{ status.created_at }}</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> 
 	<p> {{ status.text }} </p>
-{% endfor %} 
+{% endfor %}
 
 </div> <-->
 
@@ -109,7 +109,7 @@ var title = svg.append("text")
     .attr("class", "title")
     .attr("dy", ".71em")
     .text(2000);
-data = open("population.csv");
+
 d3.csv("population.csv", function(error, data) {
 
   // Convert strings to numbers.
