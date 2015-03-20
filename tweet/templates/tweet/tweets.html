@@ -1,204 +1,90 @@
 {% load staticfiles %}
 
 <!DOCTYPE html>
- <html>
+<html>
  	<meta charset="utf-8">
-<style>
-text {
-  font: 10px sans-serif;
-} 
-</style> 
-<!-->
-<div class="tweets">
-{% for status in statuses %}
-	<!--<blockquote class="twitter-tweet" lang="en"><p>{{ status.text }}</p>&mdash; {{ status.user }} <a href="{{ status.entities.expanded_url }}">{{ status.created_at }}</a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script> 
-	<p> {{ status.text }} </p>
-{% endfor %}
+  <style>
+    text {
+      font: 10px sans-serif;
+    } 
+  </style> 
 
-</div> <-->
+  <h2> <font face="verdana">Welcome to Shauray's Online Education Twitter Scrape!</font></h3>
+  <h4> <font face="verdana">Here are the most recent Tweets about online education:</font></h2>
+  {% for status in statuses %}
+    <p> <font size="2" face="verdana"> {{ status.text }} </font></p>
+  {% endfor %}
 
-<body>
-Hello
-<div class='population'>
+  <body>
+  <h4><font face="verdana">Below is a graph of the top 10 words in these tweets:</font></h4>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script>
+  var margin = {top: 20, right: 20, bottom: 70, left: 40},
+      width = 600 - margin.left - margin.right,
+      height = 300 - margin.top - margin.bottom;
 
-<!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+  var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
 
-svg {
-  font: 10px sans-serif;
-}
+  var y = d3.scale.linear().range([height, 0]);
 
-.y.axis path {
-  display: none;
-}
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom")
+      //.tickFormat(d3.time.format("%Y-%m"));
 
-.y.axis line {
-  stroke: #fff;
-  stroke-opacity: .2;
-  shape-rendering: crispEdges;
-}
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .ticks(10);
 
-.y.axis .zero line {
-  stroke: #000;
-  stroke-opacity: 1;
-}
+  var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", 
+            "translate(" + margin.left + "," + margin.top + ")");
 
-.title {
-  font: 300 78px Helvetica Neue;
-  fill: #666;
-}
+  d3.csv("http://localhost:8000/static/word_data.csv", function(error, data) {
 
-.birthyear,
-.age {
-  text-anchor: middle;
-}
+      data.forEach(function(d) {
+          d.word = d.word.toString();
+          d.value = +d.value;
+      });
+   
+    x.domain(data.map(function(d) { return d.word; }));
+    y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
-.birthyear {
-  fill: #fff;
-}
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis)
+      .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", "-.55em")
+        .attr("transform", "rotate(-90)" );
 
-rect {
-  fill-opacity: .6;
-  fill: #e377c2;
-}
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis)
+      .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("text-anchor", "end")
+        .text("Value ($)");
 
-rect:first-child {
-  fill: #1f77b4;
-}
+    svg.selectAll("bar")
+        .data(data)
+      .enter().append("rect")
+        .style("fill", "steelblue")
+        .attr("x", function(d) { return x(d.word); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.value); })
+        .attr("height", function(d) { return height - y(d.value); });
 
-</style>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<script>
-
-var margin = {top: 20, right: 40, bottom: 30, left: 20},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom,
-    barWidth = Math.floor(width / 19) - 1;
-
-var x = d3.scale.linear()
-    .range([barWidth / 2, width - barWidth / 2]);
-
-var y = d3.scale.linear()
-    .range([height, 0]);
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("right")
-    .tickSize(-width)
-    .tickFormat(function(d) { return Math.round(d / 1e6) + "M"; });
-
-// An SVG element with a bottom-right origin.
-var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-// A sliding container to hold the bars by birthyear.
-var birthyears = svg.append("g")
-    .attr("class", "birthyears");
-
-// A label for the current year.
-var title = svg.append("text")
-    .attr("class", "title")
-    .attr("dy", ".71em")
-    .text(2000);
-
-d3.csv("population.csv", function(error, data) {
-  console.log(data);
-  // Convert strings to numbers.
-  data.forEach(function(d) {
-    d.people = +d.people;
-    d.year = +d.year;
-    d.age = +d.age;
   });
 
-  // Compute the extent of the data set in age and years.
-  var age1 = d3.max(data, function(d) { return d.age; }),
-      year0 = d3.min(data, function(d) { return d.year; }),
-      year1 = d3.max(data, function(d) { return d.year; }),
-      year = year1;
-
-  // Update the scale domains.
-  x.domain([year1 - age1, year1]);
-  y.domain([0, d3.max(data, function(d) { return d.people; })]);
-
-  // Produce a map from year and birthyear to [male, female].
-  data = d3.nest()
-      .key(function(d) { return d.year; })
-      .key(function(d) { return d.year - d.age; })
-      .rollup(function(v) { return v.map(function(d) { return d.people; }); })
-      .map(data);
-
-  // Add an axis to show the population values.
-  svg.append("g")
-      .attr("class", "y axis")
-      .attr("transform", "translate(" + width + ",0)")
-      .call(yAxis)
-    .selectAll("g")
-    .filter(function(value) { return !value; })
-      .classed("zero", true);
-
-  // Add labeled rects for each birthyear (so that no enter or exit is required).
-  var birthyear = birthyears.selectAll(".birthyear")
-      .data(d3.range(year0 - age1, year1 + 1, 5))
-    .enter().append("g")
-      .attr("class", "birthyear")
-      .attr("transform", function(birthyear) { return "translate(" + x(birthyear) + ",0)"; });
-
-  birthyear.selectAll("rect")
-      .data(function(birthyear) { return data[year][birthyear] || [0, 0]; })
-    .enter().append("rect")
-      .attr("x", -barWidth / 2)
-      .attr("width", barWidth)
-      .attr("y", y)
-      .attr("height", function(value) { return height - y(value); });
-
-  // Add labels to show birthyear.
-  birthyear.append("text")
-      .attr("y", height - 4)
-      .text(function(birthyear) { return birthyear; });
-
-  // Add labels to show age (separate; not animated).
-  svg.selectAll(".age")
-      .data(d3.range(0, age1 + 1, 5))
-    .enter().append("text")
-      .attr("class", "age")
-      .attr("x", function(age) { return x(year - age); })
-      .attr("y", height + 4)
-      .attr("dy", ".71em")
-      .text(function(age) { return age; });
-
-  // Allow the arrow keys to change the displayed year.
-  window.focus();
-  d3.select(window).on("keydown", function() {
-    switch (d3.event.keyCode) {
-      case 37: year = Math.max(year0, year - 10); break;
-      case 39: year = Math.min(year1, year + 10); break;
-    }
-    update();
-  });
-
-  function update() {
-    if (!(year in data)) return;
-    title.text(year);
-
-    birthyears.transition()
-        .duration(750)
-        .attr("transform", "translate(" + (x(year1) - x(year)) + ",0)");
-
-    birthyear.selectAll("rect")
-        .data(function(birthyear) { return data[year][birthyear] || [0, 0]; })
-      .transition()
-        .duration(750)
-        .attr("y", y)
-        .attr("height", function(value) { return height - y(value); });
-  }
-});
-
-</script>
-</div>
+  </script>
 </body>
 </html>
