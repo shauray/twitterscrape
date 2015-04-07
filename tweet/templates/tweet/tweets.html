@@ -10,70 +10,77 @@
   </style> 
 
   <h2> <font face="verdana">Welcome to Shauray's Online Education Twitter Scrape!</font></h3>
-  <h4> <font face="verdana">Here are the most recent Tweets about online education:</font></h2>
+  <h4> <font face="verdana">Here are the most recent Tweets about online education until {{ date }} :</font></h2>
   {% for status in statuses %}
     <p> <font size="2" face="verdana"> {{ status.text }} </font></p>
   {% endfor %}
 
   <body>
-  <h4><font face="verdana">Below is a graph of the top 10 words in these tweets:</font></h4>
-  <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script>
-  var margin = {top: 20, right: 20, bottom: 70, left: 40},
-      width = 600 - margin.left - margin.right,
-      height = 300 - margin.top - margin.bottom;
+    <h4><font face="verdana">Below is a graph of the top 10 words in these tweets:</font></h4>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script>
 
-  var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+    // Set size of area for chart and margins
+    var margin = {top: 20, right: 20, bottom: 70, left: 40},
+        width = 600 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
 
-  var y = d3.scale.linear().range([height, 0]);
+    // Positioning in x domain
+    var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+    // Positioning in y domain
+    var y = d3.scale.linear().range([height, 0]);
 
-  var xAxis = d3.svg.axis()
-      .scale(x)
-      .orient("bottom")
-      //.tickFormat(d3.time.format("%Y-%m"));
+    // Set both axis according to domains and orientation
+    var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+    var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(10);
 
-  var yAxis = d3.svg.axis()
-      .scale(y)
-      .orient("left")
-      .ticks(10);
+    // Select body on web page and append svg object
+    var svg = d3.select("body").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g") // g element is for reference point for adding axes
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
 
-  var svg = d3.select("body").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", 
-            "translate(" + margin.left + "," + margin.top + ")");
+    // Load csv file and loop through it to extract data
+    d3.csv("http://localhost:8000/static/word_data.csv", function(error, data) {
 
-  d3.csv("http://localhost:8000/static/word_data.csv", function(error, data) {
-
-      data.forEach(function(d) {
-          d.word = d.word.toString();
-          d.value = +d.value;
-      });
-   
+        data.forEach(function(d) {
+            d.word = d.word.toString();
+            d.value = +d.value;
+        });
+   // Work through data to scale to domains
     x.domain(data.map(function(d) { return d.word; }));
     y.domain([0, d3.max(data, function(d) { return d.value; })]);
 
+    // Append x axis
     svg.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis)
-      .selectAll("text")
+      .selectAll("text") // Set text
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", "-.55em")
         .attr("transform", "rotate(-90)" );
 
+    // Append y axis
     svg.append("g")
         .attr("class", "y axis")
         .call(yAxis)
-      .append("text")
+      .append("text") // Set text
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
         .text("Value ($)");
 
+    // Add bars to the chart
     svg.selectAll("bar")
         .data(data)
       .enter().append("rect")
